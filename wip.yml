@@ -24,4 +24,9 @@ services:
     depends_on:
      - spaxon-mongodb
      - spaxon-rabbitmq
+  spaxon-discovery:
+    image: spaxon/spaxon-discovery-service
+    container_name: spaxon-discovery
+    ports:
+     - "8761:8761"
      
