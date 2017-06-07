@@ -1,1 +1,1 @@
-include "spaxon-config-service", "spaxon-discovery-service"
+include "spaxon-config-service", "spaxon-discovery-service", "spaxon-gateway-service"

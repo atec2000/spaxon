@@ -29,4 +29,14 @@ services:
     container_name: spaxon-discovery
     ports:
      - "8761:8761"
+  spaxon-gateway:
+    image: spaxon/spaxon-gateway-service
+    container_name: spaxon-gateway
+    ports:
+     - "18080:18080"
+    environment:
+     - SPRING_PROFILES_ACTIVE=production
+    depends_on:
+     - spaxon-discovery
+     - spaxon-config
      
