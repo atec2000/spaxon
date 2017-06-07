@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: spaxon-config-service
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/atec2000/spaxon-config
+server:
+  port: 8888

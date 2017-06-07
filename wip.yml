@@ -1,0 +1,27 @@
+version: '2'
+services:
+  spaxon-mongodb:
+    image: mongo:2.4
+    container_name: spaxon-mongodb
+    ports:
+     - "28017:28017"
+  spaxon-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: spaxon-rabbitmq
+    ports:
+     - "5672:5672"
+     - "15672:15672"
+    environment:
+     - RABBITMQ_DEFAULT_USER=test
+     - RABBITMQ_DEFAULT_PASS=password
+  spaxon-config:
+    image: spaxon/spaxon-config-service
+    container_name: spaxon-config
+    ports:
+     - "8888:8888"
+    environment:
+     - SPRING_PROFILES_ACTIVE=production
+    depends_on:
+     - spaxon-mongodb
+     - spaxon-rabbitmq
+     
