@@ -1,0 +1,1 @@
+![Architecture](https://github.com/atec2000/spaxon/architecture.png "Architecture")
