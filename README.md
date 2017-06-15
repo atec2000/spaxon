@@ -1,1 +1,1 @@
-![Architecture](https://github.com/atec2000/spaxon/architecture.png "Architecture")
+![Architecture](https://github.com/atec2000/spaxon/blob/master/architecture.png "Architecture")
