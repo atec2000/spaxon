@@ -1,0 +1,25 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+	}
+}
+
+
+repositories {
+	mavenCentral()
+}
+
+jar {
+    baseName = 'spaxon-common-things'
+    archiveName = 'spaxon-common-things.jar'
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '3.4.1'
+}
+
+task image(){
+    // Dummy task to allow global commands to work as intended
+}

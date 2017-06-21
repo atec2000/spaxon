@@ -14,7 +14,7 @@ buildscript {
 
 group = 'spaxon'
 
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'docker'
 
 repositories {
