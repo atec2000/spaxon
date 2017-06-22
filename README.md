@@ -29,3 +29,16 @@ If you want to see which docker instances are running on your machine at any tim
 ```bash
 $ docker ps
 ```
+
+##Step 3: Integration Test (Manual)
+```bash
+$ curl -X POST -v --header "Content-Type: application/json" --header "Accept: */*" "http://localhost:8080/commands/products/add/1?name=Everything%20Is%20Awesome"
+```
+
+The response code should be `HTTP/1.1 201 Created`. This means that the MP3 product "Everything is Awesome" has been added to the command-side event-sourced repository successfully.
+
+Now lets check that we can view the product that we just added. To do this we use the query-side API and issue a simple 'GET' request.
+
+```bash
+$ curl http://localhost:8080/queries/products/1
+```
