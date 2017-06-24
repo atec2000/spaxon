@@ -32,7 +32,7 @@ $ docker ps
 
 ##Step 3: Integration Test (Manual)
 ```bash
-$ curl -X POST -v --header "Content-Type: application/json" --header "Accept: */*" "http://localhost:8080/commands/products/add/1?name=Everything%20Is%20Awesome"
+$ curl -X POST -v --header "Content-Type: application/json" --header "Accept: */*" "http://localhost:18080/commands/products/add/1?name=Everything%20Is%20Awesome"
 ```
 
 The response code should be `HTTP/1.1 201 Created`. This means that the MP3 product "Everything is Awesome" has been added to the command-side event-sourced repository successfully.
@@ -40,5 +40,13 @@ The response code should be `HTTP/1.1 201 Created`. This means that the MP3 prod
 Now lets check that we can view the product that we just added. To do this we use the query-side API and issue a simple 'GET' request.
 
 ```bash
-$ curl http://localhost:8080/queries/products/1
+$ curl http://localhost:18080/queries/products/1
 ```
+
+##Step 4: Mongo check (Manual)
+```bash
+$ docker exec -it spaxon-mongodb mongo
+```
+
+##Step 5: RabbitMQ check (Manual)
+Check it by http://localhost:15672
