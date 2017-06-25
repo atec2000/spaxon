@@ -104,23 +104,23 @@ public class ProductAggregate extends AbstractAnnotatedAggregateRoot {
      *
      * @param event
      */
-    //@EventSourcingHandler
-    @EventHandler
+    @EventSourcingHandler
+    //@EventHandler
     public void on(ProductAddedEvent event) {
         this.id = event.getId();
         this.name = event.getName();
         LOG.debug("Applied: 'ProductAddedEvent' [{}] '{}'", event.getId(), event.getName());
     }
 
-    //@EventSourcingHandler
-    @EventHandler
+    @EventSourcingHandler
+    //@EventHandler
     public void on(ProductSaleableEvent event) {
         this.isSaleable = true;
         LOG.debug("Applied: 'ProductSaleableEvent' [{}]", event.getId());
     }
 
-    //@EventSourcingHandler
-    @EventHandler
+    @EventSourcingHandler
+    //@EventHandler
     public void on(ProductUnsaleableEvent event) {
         this.isSaleable = false;
         LOG.debug("Applied: 'ProductUnsaleableEvent' [{}]", event.getId());

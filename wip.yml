@@ -39,4 +39,15 @@ services:
     depends_on:
      - spaxon-discovery
      - spaxon-config
-     
+  spaxon-command-side:
+    image: spaxon/spaxon-command-side:latest
+    container_name: spaxon-command-side
+    depends_on:
+     - spaxon-mongodb
+     - spaxon-rabbitmq
+     - spaxon-discovery
+     - spaxon-config
+    ports:
+      - "9000"
+    environment:
+     - SPRING_PROFILES_ACTIVE=production     
