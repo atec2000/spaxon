@@ -1,0 +1,12 @@
+server:
+  port: 18080
+spring:
+  application:
+    name: spaxon-gateway-service
+  cloud:
+    config:
+      uri: http://spaxon-config:8888
+      failFast: true
+      retry:
+        initialInterval: 2000
+        maxAttempts: 30
