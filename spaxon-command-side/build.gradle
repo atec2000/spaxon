@@ -33,8 +33,9 @@ configurations{
 
 dependencies {
     compile project(':spaxon-common-things')
-    compile("org.axonframework:axon-amqp:2.4.3")
-    compile("org.axonframework:axon-mongo:2.4.3")
+    compile("org.axonframework:axon-amqp:3.0.5")
+    compile("org.axonframework:axon-mongo:3.0.5")
+    compile("org.axonframework:axon-spring-boot-starter:3.0.5")
     compile("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     compile("org.springframework.boot:spring-boot-starter-jetty:${springBootVersion}")
@@ -45,7 +46,7 @@ dependencies {
     compile("org.springframework.cloud:spring-cloud-starter-eureka")
     compile("org.springframework.cloud:spring-cloud-starter-config")
     testCompile("org.springframework.boot:spring-boot-starter-test")
-    testCompile("org.axonframework:axon-test:2.4.3")
+    testCompile("org.axonframework:axon-test:3.0.5")
 }
 
 dependencyManagement {
