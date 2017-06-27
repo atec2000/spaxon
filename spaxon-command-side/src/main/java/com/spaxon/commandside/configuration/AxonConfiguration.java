@@ -1,7 +1,5 @@
 package com.spaxon.commandside.configuration;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 
 import org.axonframework.commandhandling.CommandBus;
@@ -39,11 +37,13 @@ public class AxonConfiguration {
     @Value("${spring.data.mongodb.host}")
     private String mongoHost;
     
+    /*
     @Value("${spring.application.queue}")
     private String queueName;
 
     @Value("${spring.application.exchange}")
     private String exchangeName;
+    */
 
     @Value("${spring.application.databaseName}")
     private String databaseName;
@@ -83,12 +83,14 @@ public class AxonConfiguration {
         return mongoFactory.createMongo();
     }
 
-    /*@Bean
+    /*
+    @Bean
     public SagaStore sagaStore(){
         org.axonframework.mongo.eventhandling.saga.repository.MongoTemplate mongoTemplate =
                 new org.axonframework.mongo.eventhandling.saga.repository.DefaultMongoTemplate(mongoClient());
         return new MongoSagaStore(mongoTemplate, axonJsonSerializer());
-    }*/  
+    }
+    */  
     
     @Bean
     CommandBus commandBus(TransactionManager transactionManager) {
