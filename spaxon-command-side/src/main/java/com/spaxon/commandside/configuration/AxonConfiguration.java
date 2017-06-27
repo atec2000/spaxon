@@ -1,10 +1,13 @@
 package com.spaxon.commandside.configuration;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.common.transaction.TransactionManager;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
-import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.axonframework.messaging.interceptors.BeanValidationInterceptor;
 import org.axonframework.mongo.eventsourcing.eventstore.DefaultMongoTemplate;
 import org.axonframework.mongo.eventsourcing.eventstore.MongoEventStorageEngine;
@@ -14,9 +17,9 @@ import org.axonframework.mongo.eventsourcing.eventstore.documentperevent.Documen
 import org.axonframework.monitoring.NoOpMessageMonitor;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.json.JacksonSerializer;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.session.SessionProperties.Mongo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,9 +36,9 @@ import com.mongodb.ServerAddress;
 @Configuration
 public class AxonConfiguration {
 	
-    @Autowired
-    public Mongo mongo;
-	
+    @Value("${spring.data.mongodb.host}")
+    private String mongoHost;
+    
     @Value("${spring.application.queue}")
     private String queueName;
 
@@ -50,6 +53,9 @@ public class AxonConfiguration {
 
     @Value("${spring.application.snapshotCollectionName}")
     private String snapshotCollectionName;
+    
+	@SuppressWarnings("unused")
+	private static final Logger logger = LoggerFactory.getLogger(AxonConfiguration.class);
 	
     @Bean
     public Serializer axonJsonSerializer() {
@@ -71,7 +77,9 @@ public class AxonConfiguration {
     @Bean
     public MongoClient mongoClient(){
         MongoFactory mongoFactory = new MongoFactory();
-        mongoFactory.setMongoAddresses(Arrays.asList(new ServerAddress(mongoUrl)));
+        ServerAddress[] mongoAddresses = {new ServerAddress(mongoHost)};
+        
+        mongoFactory.setMongoAddresses(Arrays.asList(mongoAddresses));
         return mongoFactory.createMongo();
     }
 

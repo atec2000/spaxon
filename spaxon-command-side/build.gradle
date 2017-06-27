@@ -35,6 +35,7 @@ dependencies {
     compile project(':spaxon-common-things')
     compile("org.axonframework:axon-amqp:3.0.5")
     compile("org.axonframework:axon-mongo:3.0.5")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.5")
     compile("org.axonframework:axon-spring-boot-starter:3.0.5")
     compile("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
