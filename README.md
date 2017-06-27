@@ -46,6 +46,8 @@ $ curl http://localhost:18080/queries/products/1
 ##Step 4: Mongo check (Manual)
 ```bash
 $ docker exec -it spaxon-mongodb mongo
+> use products
+> db.events.find()
 ```
 
 ##Step 5: RabbitMQ check (Manual)
