@@ -2,7 +2,7 @@ package com.spaxon.commandside.aggregates;
 
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
-import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +49,9 @@ public class ProductAggregate {
     private String id;
     private String name;
     private boolean isSaleable = false;
+    
+    //TODO: multiple categories
+    //TODO: multiple images
 
     /**
      * This default constructor is used by the Repository to construct
@@ -104,23 +107,20 @@ public class ProductAggregate {
      *
      * @param event
      */
-    //@EventSourcingHandler
-    @EventHandler
+    @EventSourcingHandler
     public void on(ProductAddedEvent event) {
         this.id = event.getId();
         this.name = event.getName();
         LOG.debug("Applied: 'ProductAddedEvent' [{}] '{}'", event.getId(), event.getName());
     }
 
-    //@EventSourcingHandler
-    @EventHandler
+    @EventSourcingHandler
     public void on(ProductSaleableEvent event) {
         this.isSaleable = true;
         LOG.debug("Applied: 'ProductSaleableEvent' [{}]", event.getId());
     }
 
-    //@EventSourcingHandler
-    @EventHandler
+    @EventSourcingHandler
     public void on(ProductUnsaleableEvent event) {
         this.isSaleable = false;
         LOG.debug("Applied: 'ProductUnsaleableEvent' [{}]", event.getId());
