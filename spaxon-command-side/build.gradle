@@ -33,21 +33,24 @@ configurations{
 
 dependencies {
     compile project(':spaxon-common-things')
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.5")
+    compile("mysql:mysql-connector-java:5.1.42")
     compile("org.axonframework:axon-amqp:3.0.5")
     compile("org.axonframework:axon-mongo:3.0.5")
-    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.5")
     compile("org.axonframework:axon-spring-boot-starter:3.0.5")
+    compile("org.axonframework:axon-spring-boot-autoconfigure:3.0.5")    
+    testCompile("org.axonframework:axon-test:3.0.5")
     compile("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     compile("org.springframework.boot:spring-boot-starter-jetty:${springBootVersion}")
     compile("org.springframework.boot:spring-boot-starter-amqp:${springBootVersion}")
-    compile("org.springframework.boot:spring-boot-starter-data-mongodb:${springBootVersion}")
+    //compile("org.springframework.boot:spring-boot-starter-data-mongodb:${springBootVersion}")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}")
     compile("org.springframework.retry:spring-retry")
     compile("org.springframework.boot:spring-boot-starter-aop:${springBootVersion}")
     compile("org.springframework.cloud:spring-cloud-starter-eureka")
     compile("org.springframework.cloud:spring-cloud-starter-config")
     testCompile("org.springframework.boot:spring-boot-starter-test")
-    testCompile("org.axonframework:axon-test:3.0.5")
 }
 
 dependencyManagement {

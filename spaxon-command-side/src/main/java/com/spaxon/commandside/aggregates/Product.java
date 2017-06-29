@@ -2,6 +2,7 @@ package com.spaxon.commandside.aggregates;
 
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
+import org.axonframework.commandhandling.model.AggregateMember;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.slf4j.Logger;
@@ -10,10 +11,18 @@ import org.slf4j.LoggerFactory;
 import com.spaxon.commandside.commands.AddProductCommand;
 import com.spaxon.commandside.commands.MarkProductAsSaleableCommand;
 import com.spaxon.commandside.commands.MarkProductAsUnsaleableCommand;
+import com.spaxon.commandside.domain.Category;
+import com.spaxon.commandside.domain.ProductImage;
 import com.spaxon.commonthings.events.ProductAddedEvent;
 import com.spaxon.commonthings.events.ProductSaleableEvent;
 import com.spaxon.commonthings.events.ProductUnsaleableEvent;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+import java.util.List;
 
 
 /**
@@ -35,10 +44,11 @@ import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
  * Events to the Aggregate, and the handling of those events by the aggregate or any other
  * configured EventHandlers.
  */
-@Aggregate
-public class ProductAggregate {
+@Aggregate(repository="productRepository")
+@Entity
+public class Product {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ProductAggregate.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Product.class);
 
     /**
      * Aggregates that are managed by Axon must have a unique identifier.
@@ -47,19 +57,22 @@ public class ProductAggregate {
      */
     @AggregateIdentifier
     private String id;
-    private String name;
+	private String name;
     private boolean isSaleable = false;
+    /*
+    @AggregateMember
+	private List<Category> categories;
+    @AggregateMember
+    private List<ProductImage> productImages;
+    */
     
-    //TODO: multiple categories
-    //TODO: multiple images
-
-    /**
+	/**
      * This default constructor is used by the Repository to construct
      * a prototype ProductAggregate. Events are then used to set properties
      * such as the ProductAggregate's Id in order to make the Aggregate reflect
      * it's true logical state.
      */
-    public ProductAggregate() {
+    public Product() {
     }
 
     /**
@@ -73,7 +86,7 @@ public class ProductAggregate {
      * @param command
      */
     @CommandHandler
-    public ProductAggregate(AddProductCommand command) {
+    public Product(AddProductCommand command) {
         LOG.debug("Command: 'AddProductCommand' received.");
         LOG.debug("Queuing up a new ProductAddedEvent for product '{}'", command.getId());
         apply(new ProductAddedEvent(command.getId(), command.getName()));
@@ -126,10 +139,12 @@ public class ProductAggregate {
         LOG.debug("Applied: 'ProductUnsaleableEvent' [{}]", event.getId());
     }
 
+    @Id
     public String getId() {
         return id;
     }
 
+    @Column
     public String getName() {
         return name;
     }
@@ -137,4 +152,35 @@ public class ProductAggregate {
     public boolean isSaleable() {
         return isSaleable;
     }
+    
+    public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setSaleable(boolean isSaleable) {
+		this.isSaleable = isSaleable;
+	}    
+    
+    /*
+    public List<Category> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(List<Category> categories) {
+		this.categories = categories;
+	}
+
+    public List<ProductImage> getProductImages() {
+		return productImages;
+	}
+
+	public void setProductImages(List<ProductImage> productImages) {
+		this.productImages = productImages;
+	}
+	*/
+
 }

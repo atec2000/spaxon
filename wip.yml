@@ -1,10 +1,17 @@
 version: '2'
 services:
-  spaxon-mongodb:
-    image: mongo:2.4
-    container_name: spaxon-mongodb
+  spaxon-mysql:
+    image: mysql/mysql-server:5.6
+    container_name: spaxon-mysql
     ports:
-     - "28017:28017"
+     - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"     
+#  spaxon-mongodb:
+#    image: mongo:2.4
+#    container_name: spaxon-mongodb
+#    ports:
+#     - "28017:28017"
   spaxon-rabbitmq:
     image: rabbitmq:3-management
     container_name: spaxon-rabbitmq
@@ -21,9 +28,9 @@ services:
      - "8888:8888"
     environment:
      - SPRING_PROFILES_ACTIVE=production
-    depends_on:
-     - spaxon-mongodb
-     - spaxon-rabbitmq
+#    depends_on:
+#     - spaxon-mongodb
+#     - spaxon-rabbitmq
   spaxon-discovery:
     image: spaxon/spaxon-discovery-service
     container_name: spaxon-discovery
@@ -43,7 +50,7 @@ services:
     image: spaxon/spaxon-command-side:latest
     container_name: spaxon-command-side
     depends_on:
-     - spaxon-mongodb
+     - spaxon-mysql
      - spaxon-rabbitmq
      - spaxon-discovery
      - spaxon-config
