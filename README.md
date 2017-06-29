@@ -50,5 +50,10 @@ $ docker exec -it spaxon-mongodb mongo
 > db.events.find()
 ```
 
-##Step 5: RabbitMQ check (Manual)
+##Step 5: MySQL check (Manual)
+```bash
+$ docker exec -it spaxon-mysql mysql -h localhost -u root -p
+```
+
+##Step 6: RabbitMQ check (Manual)
 Check it by http://localhost:15672
