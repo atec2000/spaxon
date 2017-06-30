@@ -36,7 +36,7 @@ dependencies {
     compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.5")
     compile("mysql:mysql-connector-java:5.1.42")
     compile("org.axonframework:axon-amqp:3.0.5")
-    compile("org.axonframework:axon-mongo:3.0.5")
+    //compile("org.axonframework:axon-mongo:3.0.5")
     compile("org.axonframework:axon-spring-boot-starter:3.0.5")
     compile("org.axonframework:axon-spring-boot-autoconfigure:3.0.5")    
     testCompile("org.axonframework:axon-test:3.0.5")

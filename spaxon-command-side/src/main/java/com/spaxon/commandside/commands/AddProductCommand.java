@@ -2,6 +2,8 @@ package com.spaxon.commandside.commands;
 
 import org.axonframework.commandhandling.TargetAggregateIdentifier;
 
+import com.spaxon.commandside.aggregates.Product;
+
 /**
  * Created by Ben on 07/08/2015.
  */
@@ -9,18 +11,18 @@ public class AddProductCommand {
 
     @TargetAggregateIdentifier
     private final String id;
-    private final String name;
+    private final Product product;
 
-    public AddProductCommand(String id, String name) {
+    public AddProductCommand(String id, Product product) {
         this.id = id;
-        this.name = name;
+        this.product = product;
     }
 
     public String getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public Product getProduct() {
+        return product;
     }
 }

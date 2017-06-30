@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import com.spaxon.commandside.aggregates.Product;
 import com.spaxon.commandside.commands.AddProductCommand;
 import com.spaxon.commandside.commands.MarkProductAsSaleableCommand;
 import com.spaxon.commandside.commands.MarkProductAsUnsaleableCommand;
@@ -15,6 +16,7 @@ import com.spaxon.commonthings.utils.Asserts;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+import java.util.UUID;
 
 /**
  * Created by ben on 19/01/16.
@@ -28,22 +30,23 @@ public class ProductRestController {
     @Autowired
     CommandGateway commandGateway;
 
-    @RequestMapping(value = "/add/{id}", method = RequestMethod.POST)
-    public void add(@PathVariable(value = "id") String id,
-                    @RequestParam(value = "name", required = true) String name,
-                    HttpServletResponse response) {
-
-        LOG.debug("Adding Product [{}] '{}'", id, name);
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    public void add(@RequestBody Product product, HttpServletResponse response) {
+    	
+        LOG.debug("Adding Product [{}]", product.getName());
+    	String productId = UUID.randomUUID().toString();
+    	String productName = product.getName();
 
         try {
-            Asserts.INSTANCE.areNotEmpty(Arrays.asList(id, name));
-            AddProductCommand command = new AddProductCommand(id, name);
+            product.setId(productId);
+            Asserts.INSTANCE.areNotEmpty(Arrays.asList(productId, productName));
+            AddProductCommand command = new AddProductCommand(productId, product);
             commandGateway.sendAndWait(command);
-            LOG.info("Added Product [{}] '{}'", id, name);
+            LOG.info("Added Product [{}] '{}'", productId, productName);
             response.setStatus(HttpServletResponse.SC_CREATED);// Set up the 201 CREATED response
             return;
         } catch (AssertionError ae) {
-            LOG.warn("Add Request failed - empty params?. [{}] '{}'", id, name);
+            LOG.warn("Add Request failed - empty params?. [{}] '{}'", productId, productName);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } catch (CommandExecutionException cex) {
             LOG.warn("Add Command FAILED with Message: {}", cex.getMessage());
@@ -52,13 +55,14 @@ public class ProductRestController {
             if (null != cex.getCause()) {
                 LOG.warn("Caused by: {} {}", cex.getCause().getClass().getName(), cex.getCause().getMessage());
                 if (cex.getCause() instanceof ConcurrencyException) {
-                    LOG.warn("A duplicate product with the same ID [{}] already exists.", id);
+                    LOG.warn("A duplicate product with the same ID [{}] already exists.", productId);
                     response.setStatus(HttpServletResponse.SC_CONFLICT);
                 }
             }
         }
     }
     
+    /*
     @RequestMapping(value = "/{id}", method = RequestMethod.POST)
     public void saleable(@PathVariable(value = "id") String id,
                     @RequestParam(value = "saleable", required = true) Integer saleable,
@@ -90,6 +94,7 @@ public class ProductRestController {
                 LOG.warn("Caused by: {} {}", cex.getCause().getClass().getName(), cex.getCause().getMessage());
             }
         }
-    }    
+    } 
+    */   
     
 }

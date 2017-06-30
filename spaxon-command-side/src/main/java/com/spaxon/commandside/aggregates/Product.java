@@ -7,6 +7,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
 import com.spaxon.commandside.commands.AddProductCommand;
 import com.spaxon.commandside.commands.MarkProductAsSaleableCommand;
@@ -18,11 +19,15 @@ import com.spaxon.commonthings.events.ProductSaleableEvent;
 import com.spaxon.commonthings.events.ProductUnsaleableEvent;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 
-import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -58,14 +63,15 @@ public class Product {
     @AggregateIdentifier
     private String id;
 	private String name;
-    private boolean isSaleable = false;
+    private boolean saleable = false;
     /*
     @AggregateMember
 	private List<Category> categories;
-    @AggregateMember
-    private List<ProductImage> productImages;
     */
-    
+
+    //@AggregateMember
+    //private Set<ProductImage> productImages;
+
 	/**
      * This default constructor is used by the Repository to construct
      * a prototype ProductAggregate. Events are then used to set properties
@@ -89,13 +95,17 @@ public class Product {
     public Product(AddProductCommand command) {
         LOG.debug("Command: 'AddProductCommand' received.");
         LOG.debug("Queuing up a new ProductAddedEvent for product '{}'", command.getId());
-        apply(new ProductAddedEvent(command.getId(), command.getName()));
+        
+        ProductAddedEvent productAddedEvent = new ProductAddedEvent();
+		BeanUtils.copyProperties(command.getProduct(), productAddedEvent);
+
+        apply(productAddedEvent);
     }
 
     @CommandHandler
     public void markSaleable(MarkProductAsSaleableCommand command) {
         LOG.debug("Command: 'MarkProductAsSaleableCommand' received.");
-        if (!this.isSaleable()) {
+        if (!this.getSaleable()) {
             apply(new ProductSaleableEvent(id));
         } else {
             throw new IllegalStateException("This ProductAggregate (" + this.getId() + ") is already Saleable.");
@@ -105,7 +115,7 @@ public class Product {
     @CommandHandler
     public void markUnsaleable(MarkProductAsUnsaleableCommand command) {
         LOG.debug("Command: 'MarkProductAsUnsaleableCommand' received.");
-        if (this.isSaleable()) {
+        if (this.getSaleable()) {
             apply(new ProductUnsaleableEvent(id));
         } else {
             throw new IllegalStateException("This ProductAggregate (" + this.getId() + ") is already off-sale.");
@@ -129,13 +139,13 @@ public class Product {
 
     @EventSourcingHandler
     public void on(ProductSaleableEvent event) {
-        this.isSaleable = true;
+        this.saleable = true;
         LOG.debug("Applied: 'ProductSaleableEvent' [{}]", event.getId());
     }
 
     @EventSourcingHandler
     public void on(ProductUnsaleableEvent event) {
-        this.isSaleable = false;
+        this.saleable = false;
         LOG.debug("Applied: 'ProductUnsaleableEvent' [{}]", event.getId());
     }
 
@@ -149,8 +159,8 @@ public class Product {
         return name;
     }
 
-    public boolean isSaleable() {
-        return isSaleable;
+    public boolean getSaleable() {
+        return saleable;
     }
     
     public void setId(String id) {
@@ -161,25 +171,29 @@ public class Product {
 		this.name = name;
 	}
 
-	public void setSaleable(boolean isSaleable) {
-		this.isSaleable = isSaleable;
+	public void setSaleable(boolean saleable) {
+		this.saleable = saleable;
 	}    
     
-    /*
+	/*
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "product_image", joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "image_id", referencedColumnName = "id"))	
+	public Set<ProductImage> getProductImages() {
+		return productImages;
+	}
+
+	public void setProductImages(Set<ProductImage> productImages) {
+		this.productImages = productImages;
+	}
+	*/
+
+	/*
     public List<Category> getCategories() {
 		return categories;
 	}
 
 	public void setCategories(List<Category> categories) {
 		this.categories = categories;
-	}
-
-    public List<ProductImage> getProductImages() {
-		return productImages;
-	}
-
-	public void setProductImages(List<ProductImage> productImages) {
-		this.productImages = productImages;
 	}
 	*/
 
