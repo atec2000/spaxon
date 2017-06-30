@@ -33,6 +33,7 @@ $ docker ps
 ##Step 3: Integration Test (Manual)
 ```bash
 $ curl -X POST -v --header "Content-Type: application/json" --header "Accept: */*" "http://localhost:18080/commands/products/add/1?name=Everything%20Is%20Awesome"
+$ curl -X POST -v --header "Content-Type: application/json" --header "Accept: */*" "http://localhost:18080/commands/products/1?saleable=1" -d '{"name": "product name 1", "saleable": true}'
 ```
 
 The response code should be `HTTP/1.1 201 Created`. This means that the MP3 product "Everything is Awesome" has been added to the command-side event-sourced repository successfully.
