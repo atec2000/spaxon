@@ -96,6 +96,7 @@ public class Product {
         LOG.debug("Command: 'AddProductCommand' received.");
         LOG.debug("Queuing up a new ProductAddedEvent for product '{}'", command.getId());
         
+        //command.getProduct().getId();
         ProductAddedEvent productAddedEvent = new ProductAddedEvent();
 		BeanUtils.copyProperties(command.getProduct(), productAddedEvent);
 
