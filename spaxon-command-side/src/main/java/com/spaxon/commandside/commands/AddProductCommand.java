@@ -8,9 +8,12 @@ import org.axonframework.commandhandling.TargetAggregateIdentifier;
 public class AddProductCommand {
 
     @TargetAggregateIdentifier
-    private final String id;
-	private final String name;
-    private final boolean saleable;
+    private String id;
+	private String name;
+    private boolean saleable;
+
+	public AddProductCommand() {
+	}
 
 	public AddProductCommand(String id, String name, boolean saleable) {
 		this.id = id;
@@ -22,12 +25,24 @@ public class AddProductCommand {
 		return id;
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public String getName() {
 		return name;
 	}
 
-	public boolean getSaleable() {
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public boolean isSaleable() {
 		return saleable;
+	}
+
+	public void setSaleable(boolean saleable) {
+		this.saleable = saleable;
 	}
 	
 }

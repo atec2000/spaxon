@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.spaxon.commandside.commands.AddProductCommand;
-import com.spaxon.commandside.reqvo.AddProductReqVo;
 import com.spaxon.commonthings.utils.Asserts;
 
 import javax.servlet.http.HttpServletResponse;
@@ -29,16 +28,16 @@ public class ProductRestController {
     CommandGateway commandGateway;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public void add(@RequestBody AddProductReqVo addProductReqVo, HttpServletResponse response) {
+    public void add(@RequestBody AddProductCommand command, HttpServletResponse response) {
     	
-        LOG.debug("Adding Product [{}]", addProductReqVo.getName());
+        LOG.debug("Adding Product [{}]", command.getName());
     	String productId = UUID.randomUUID().toString();
         LOG.debug("productId: {}", productId);
-    	String productName = addProductReqVo.getName();
+    	String productName = command.getName();
 
         try {
             Asserts.INSTANCE.areNotEmpty(Arrays.asList(productId, productName));
-            AddProductCommand command = new AddProductCommand(productId, productName, addProductReqVo.getSaleable());
+            command.setId(productId);
 
             commandGateway.sendAndWait(command);
             LOG.info("Added Product [{}] '{}'", productId, productName);

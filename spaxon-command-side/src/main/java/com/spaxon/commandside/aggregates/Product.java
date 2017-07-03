@@ -98,7 +98,7 @@ public class Product {
         
         //command.getProduct().getId();
         ProductAddedEvent productAddedEvent = 
-        		new ProductAddedEvent(command.getId(), command.getName(), command.getSaleable());
+        		new ProductAddedEvent(command.getId(), command.getName(), command.isSaleable());
 		//BeanUtils.copyProperties(command, productAddedEvent);		
         LOG.debug("productAddedEvent.getId(): {}", productAddedEvent.getId());
 
