@@ -97,8 +97,10 @@ public class Product {
         LOG.debug("Queuing up a new ProductAddedEvent for product '{}'", command.getId());
         
         //command.getProduct().getId();
-        ProductAddedEvent productAddedEvent = new ProductAddedEvent();
-		BeanUtils.copyProperties(command.getProduct(), productAddedEvent);
+        ProductAddedEvent productAddedEvent = 
+        		new ProductAddedEvent(command.getId(), command.getName(), command.getSaleable());
+		//BeanUtils.copyProperties(command, productAddedEvent);		
+        LOG.debug("productAddedEvent.getId(): {}", productAddedEvent.getId());
 
         apply(productAddedEvent);
     }
@@ -135,6 +137,7 @@ public class Product {
     public void on(ProductAddedEvent event) {
         this.id = event.getId();
         this.name = event.getName();
+        this.saleable = event.getSaleable();
         LOG.debug("Applied: 'ProductAddedEvent' [{}] '{}'", event.getId(), event.getName());
     }
 

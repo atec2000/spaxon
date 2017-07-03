@@ -6,7 +6,9 @@ services:
     ports:
      - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: "root"     
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=spaxon
+      - MYSQL_ROOT_HOST=%          
 #  spaxon-mongodb:
 #    image: mongo:2.4
 #    container_name: spaxon-mongodb

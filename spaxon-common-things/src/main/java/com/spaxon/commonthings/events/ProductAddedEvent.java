@@ -2,8 +2,6 @@ package com.spaxon.commonthings.events;
 
 
 public class ProductAddedEvent extends AbstractEvent {
-
-	private static final long serialVersionUID = -1518978805840349048L;
 	
 	private String name;
     private boolean saleable = false;
@@ -11,20 +9,18 @@ public class ProductAddedEvent extends AbstractEvent {
     public ProductAddedEvent() {
     }
 
+    public ProductAddedEvent(String id, String name, boolean saleable) {
+        super(id);
+        this.name = name;
+        this.saleable = saleable;
+    }
+
     public String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public boolean isSaleable() {
+	public boolean getSaleable() {
 		return saleable;
-	}
-
-	public void setSaleable(boolean saleable) {
-		this.saleable = saleable;
 	}
 
 }

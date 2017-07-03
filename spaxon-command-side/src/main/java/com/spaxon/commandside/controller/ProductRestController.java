@@ -8,10 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.spaxon.commandside.aggregates.Product;
 import com.spaxon.commandside.commands.AddProductCommand;
-import com.spaxon.commandside.commands.MarkProductAsSaleableCommand;
-import com.spaxon.commandside.commands.MarkProductAsUnsaleableCommand;
+import com.spaxon.commandside.reqvo.AddProductReqVo;
 import com.spaxon.commonthings.utils.Asserts;
 
 import javax.servlet.http.HttpServletResponse;
@@ -31,16 +29,17 @@ public class ProductRestController {
     CommandGateway commandGateway;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public void add(@RequestBody Product product, HttpServletResponse response) {
+    public void add(@RequestBody AddProductReqVo addProductReqVo, HttpServletResponse response) {
     	
-        LOG.debug("Adding Product [{}]", product.getName());
+        LOG.debug("Adding Product [{}]", addProductReqVo.getName());
     	String productId = UUID.randomUUID().toString();
-    	String productName = product.getName();
+        LOG.debug("productId: {}", productId);
+    	String productName = addProductReqVo.getName();
 
         try {
-            product.setId(productId);
             Asserts.INSTANCE.areNotEmpty(Arrays.asList(productId, productName));
-            AddProductCommand command = new AddProductCommand(productId, product);
+            AddProductCommand command = new AddProductCommand(productId, productName, addProductReqVo.getSaleable());
+
             commandGateway.sendAndWait(command);
             LOG.info("Added Product [{}] '{}'", productId, productName);
             response.setStatus(HttpServletResponse.SC_CREATED);// Set up the 201 CREATED response
