@@ -25,9 +25,13 @@ $ docker-compose -f wip.yml up
 ```
 
 If you want to see which docker instances are running on your machine at any time, open a separate terminal and execute the following command:-
-
 ```bash
 $ docker ps
+```
+
+If you want to remove stopped service containers:
+```bash
+$ docker-compose -f wip.yml rm -v
 ```
 
 ##Step 3: Integration Test (Manual)
