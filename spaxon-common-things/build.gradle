@@ -1,4 +1,7 @@
 buildscript {
+	ext {
+		springBootVersion = '1.5.4.RELEASE'
+	}
 	repositories {
 		mavenCentral()
 	}
@@ -14,6 +17,10 @@ repositories {
 jar {
     baseName = 'spaxon-common-things'
     archiveName = 'spaxon-common-things.jar'
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}")
 }
 
 task wrapper(type: Wrapper) {

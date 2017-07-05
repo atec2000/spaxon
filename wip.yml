@@ -57,6 +57,8 @@ services:
      - spaxon-discovery
      - spaxon-config
     ports:
-      - "9000"
+      - "9000:9000"
+      - "9001:9001"
+      - "18000:18000"
     environment:
      - SPRING_PROFILES_ACTIVE=production     

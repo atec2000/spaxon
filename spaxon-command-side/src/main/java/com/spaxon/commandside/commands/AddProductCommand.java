@@ -1,6 +1,10 @@
 package com.spaxon.commandside.commands;
 
+import java.util.Set;
+
 import org.axonframework.commandhandling.TargetAggregateIdentifier;
+
+import com.spaxon.commonthings.domain.ProductImage;
 
 /**
  * Created by Ben on 07/08/2015.
@@ -11,6 +15,7 @@ public class AddProductCommand {
     private String id;
 	private String name;
     private boolean saleable;
+	private Set<ProductImage> productImages;
 
 	public AddProductCommand() {
 	}
@@ -44,5 +49,13 @@ public class AddProductCommand {
 	public void setSaleable(boolean saleable) {
 		this.saleable = saleable;
 	}
+	
+    public Set<ProductImage> getProductImages() {
+		return productImages;
+	}
+
+	public void setProductImages(Set<ProductImage> productImages) {
+		this.productImages = productImages;
+	}	
 	
 }

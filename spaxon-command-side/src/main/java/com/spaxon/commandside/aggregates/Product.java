@@ -26,7 +26,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -69,8 +71,8 @@ public class Product {
 	private List<Category> categories;
     */
 
-    //@AggregateMember
-    //private Set<ProductImage> productImages;
+    @AggregateMember
+    private Set<ProductImage> productImages;
 
 	/**
      * This default constructor is used by the Repository to construct
@@ -97,10 +99,14 @@ public class Product {
         LOG.debug("Queuing up a new ProductAddedEvent for product '{}'", command.getId());
         
         //command.getProduct().getId();
-        ProductAddedEvent productAddedEvent = 
-        		new ProductAddedEvent(command.getId(), command.getName(), command.isSaleable());
+        ProductAddedEvent productAddedEvent = new ProductAddedEvent(
+        		command.getId(), 
+        		command.getName(), 
+        		command.isSaleable(),
+        		command.getProductImages());
 		//BeanUtils.copyProperties(command, productAddedEvent);		
         LOG.debug("productAddedEvent.getId(): {}", productAddedEvent.getId());
+        LOG.debug("..");
 
         apply(productAddedEvent);
     }
@@ -138,6 +144,15 @@ public class Product {
         this.id = event.getId();
         this.name = event.getName();
         this.saleable = event.getSaleable();
+        Set<ProductImage> productImages = new HashSet<ProductImage>();
+        for (com.spaxon.commonthings.domain.ProductImage pi : event.getProductImages()) {
+        	ProductImage productImage = new ProductImage();
+        	productImage.setName(pi.getName());
+        	productImage.setUrl(pi.getUrl());
+        	productImage.setProduct(this);
+        	productImages.add(productImage);
+        }
+        this.productImages = productImages;
         LOG.debug("Applied: 'ProductAddedEvent' [{}] '{}'", event.getId(), event.getName());
     }
 
@@ -179,9 +194,7 @@ public class Product {
 		this.saleable = saleable;
 	}    
     
-	/*
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "product_image", joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "image_id", referencedColumnName = "id"))	
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)	
 	public Set<ProductImage> getProductImages() {
 		return productImages;
 	}
@@ -189,9 +202,10 @@ public class Product {
 	public void setProductImages(Set<ProductImage> productImages) {
 		this.productImages = productImages;
 	}
-	*/
 
 	/*
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "product_image", joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "image_id", referencedColumnName = "id"))	
     public List<Category> getCategories() {
 		return categories;
 	}
