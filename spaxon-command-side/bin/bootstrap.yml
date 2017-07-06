@@ -5,7 +5,7 @@ spring:
     name: spaxon-command-side
   cloud:
     config:
-      uri: http://localhost:8888
+      uri: http://spaxon-config:8888
       failFast: true
       retry:
         initialInterval: 2000

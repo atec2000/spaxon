@@ -1,0 +1,60 @@
+version: '2'
+services:
+  spaxon-mysql:
+    image: mysql/mysql-server:5.6
+    container_name: spaxon-mysql
+    ports:
+     - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=spaxon
+      - MYSQL_ROOT_HOST=%          
+#  spaxon-mongodb:
+#    image: mongo:2.4
+#    container_name: spaxon-mongodb
+#    ports:
+#     - "28017:28017"
+  spaxon-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: spaxon-rabbitmq
+    ports:
+     - "5672:5672"
+     - "15672:15672"
+    environment:
+     - RABBITMQ_DEFAULT_USER=test
+     - RABBITMQ_DEFAULT_PASS=password
+  spaxon-config:
+    image: spaxon/spaxon-config-service
+    container_name: spaxon-config
+    ports:
+     - "8888:8888"
+    volumes:
+     - ..:/Users/jzhou/stswork     
+#    depends_on:
+#     - spaxon-mongodb
+#     - spaxon-rabbitmq
+  spaxon-discovery:
+    image: spaxon/spaxon-discovery-service
+    container_name: spaxon-discovery
+    ports:
+     - "8761:8761"
+  spaxon-gateway:
+    image: spaxon/spaxon-gateway-service
+    container_name: spaxon-gateway
+    ports:
+     - "18080:18080"
+    depends_on:
+     - spaxon-discovery
+     - spaxon-config
+  spaxon-command-side:
+    image: spaxon/spaxon-command-side:latest
+    container_name: spaxon-command-side
+    depends_on:
+     - spaxon-mysql
+     - spaxon-rabbitmq
+     - spaxon-discovery
+     - spaxon-config
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+      - "18000:18000"
