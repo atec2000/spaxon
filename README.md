@@ -40,6 +40,7 @@ $ docker-compose -f wip.yml rm -v
 ```bash
 $ curl -X POST -v --header "Content-Type: application/json" --header "Accept: */*" "http://localhost:18080/commands/products/add/1?name=Everything%20Is%20Awesome"
 $ curl -X POST -v --header "Content-Type: application/json" --header "Accept: */*" "http://localhost:18080/commands/products/add" -d '{"name":"product name 1","saleable":"true"}'
+$ curl -X POST -v --header "Content-Type: application/json" --header "Accept: */*" "http://localhost:18080/commands/products/add" -d '{"name":"product name 1","saleable":"true","productImages":[{"name":"name 1","url":"url 1"}]}'
 ```
 
 The response code should be `HTTP/1.1 201 Created`. This means that the MP3 product "Everything is Awesome" has been added to the command-side event-sourced repository successfully.
