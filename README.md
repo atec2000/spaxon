@@ -1,6 +1,6 @@
 ![Architecture](https://github.com/atec2000/spaxon/blob/master/architecture.png "Architecture")
 
-This project is a demo project. For development convenience, subproject should be a entire project to utilize spring devtools to restart one of applications when classes recompiled.
+IMPORTANT: This project is a demo project. For development convenience, subproject should be a entire project to utilize spring devtools to restart one of applications when classes recompiled.
 
 #Running the Demo
 
