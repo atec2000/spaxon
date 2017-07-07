@@ -1,0 +1,9 @@
+FROM frolvlad/alpine-oraclejdk8:slim
+VOLUME /tmp
+RUN mkdir /app
+ADD . /app
+VOLUME /app
+EXPOSE 9000 9001
+WORKDIR /app
+ENV GRADLE_OPTS -Dorg.gradle.native=false
+CMD ["./gradlew", "bootRun"]

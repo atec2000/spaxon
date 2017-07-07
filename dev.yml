@@ -58,3 +58,14 @@ services:
       - "9000:9000"
       - "9001:9001"
       - "18000:18000"
+  spaxon-solr:
+    image: solr
+    container_name: spaxon-solr
+    ports:
+     - "8983:8983"
+#    volumes:
+#      - data:/opt/solr/server/solr/mycores
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr-precreate
+      - spaxon
