@@ -65,3 +65,6 @@ $ docker exec -it spaxon-mysql mysql -h localhost -u root -p
 
 ##Step 6: RabbitMQ check (Manual)
 Check it by http://localhost:15672
+
+##Step 7: Solr check (Manual)
+Check it by http://localhost:8983
