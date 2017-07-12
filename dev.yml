@@ -63,9 +63,11 @@ services:
     container_name: spaxon-solr
     ports:
      - "8983:8983"
-#    volumes:
+    volumes:
+     - ./solr-docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d   
 #      - data:/opt/solr/server/solr/mycores
     entrypoint:
       - docker-entrypoint.sh
       - solr-precreate
       - spaxon
+      
