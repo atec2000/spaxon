@@ -8,11 +8,10 @@ import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.SimpleEventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.spaxon.commandside.aggregates.Product;
+import com.spaxon.commandside.aggregates.UserOrder;
 
 /**
  * A configuration for axonframework.
@@ -58,8 +57,8 @@ public class AxonConfiguration {
 	}    
     
 	@Bean
-    public Repository<Product> productRepository() {
-        return new GenericJpaRepository<Product>(entityManagerProvider(), Product.class, eventBus());
+    public Repository<UserOrder> orderRepository() {
+        return new GenericJpaRepository<UserOrder>(entityManagerProvider(), UserOrder.class, eventBus());
     }    
     
 }

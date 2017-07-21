@@ -9,14 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
-import com.spaxon.commandside.commands.AddProductCommand;
-import com.spaxon.commandside.commands.MarkProductAsSaleableCommand;
-import com.spaxon.commandside.commands.MarkProductAsUnsaleableCommand;
-import com.spaxon.commandside.domain.Category;
-import com.spaxon.commandside.domain.ProductImage;
-import com.spaxon.commonthings.events.ProductAddedEvent;
-import com.spaxon.commonthings.events.ProductSaleableEvent;
-import com.spaxon.commonthings.events.ProductUnsaleableEvent;
+import com.spaxon.commandside.commands.AddOrderCommand;
+import com.spaxon.commandside.domain.LineItem;
+import com.spaxon.commonthings.events.OrderAddedEvent;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 
 import javax.persistence.CascadeType;
@@ -51,11 +46,11 @@ import java.util.Set;
  * Events to the Aggregate, and the handling of those events by the aggregate or any other
  * configured EventHandlers.
  */
-@Aggregate(repository="productRepository")
+@Aggregate(repository="orderRepository")
 @Entity
-public class Product {
+public class UserOrder {
 
-	private static final Logger LOG = LoggerFactory.getLogger(Product.class);
+	private static final Logger LOG = LoggerFactory.getLogger(UserOrder.class);
 
     /**
      * Aggregates that are managed by Axon must have a unique identifier.
@@ -65,14 +60,14 @@ public class Product {
     @AggregateIdentifier
     private String id;
 	private String name;
-    private boolean saleable = false;
-    /*
+
+	/*
     @AggregateMember
 	private List<Category> categories;
     */
 
     @AggregateMember
-    private Set<ProductImage> productImages;
+    private Set<LineItem> lineItems;
 
 	/**
      * This default constructor is used by the Repository to construct
@@ -80,7 +75,7 @@ public class Product {
      * such as the ProductAggregate's Id in order to make the Aggregate reflect
      * it's true logical state.
      */
-    public Product() {
+    public UserOrder() {
     }
 
     /**
@@ -94,41 +89,20 @@ public class Product {
      * @param command
      */
     @CommandHandler
-    public Product(AddProductCommand command) {
+    public UserOrder(AddOrderCommand command) {
         LOG.debug("Command: 'AddProductCommand' received.");
         LOG.debug("Queuing up a new ProductAddedEvent for product '{}'", command.getId());
         
         //command.getProduct().getId();
-        ProductAddedEvent productAddedEvent = new ProductAddedEvent(
+        OrderAddedEvent orderAddedEvent = new OrderAddedEvent(
         		command.getId(), 
         		command.getName(), 
-        		command.isSaleable(),
-        		command.getProductImages());
+        		command.getLineItems());
 		//BeanUtils.copyProperties(command, productAddedEvent);		
-        LOG.debug("productAddedEvent.getId(): {}", productAddedEvent.getId());
+        LOG.debug("productAddedEvent.getId(): {}", orderAddedEvent.getId());
         LOG.debug("..");
 
-        apply(productAddedEvent);
-    }
-
-    @CommandHandler
-    public void markSaleable(MarkProductAsSaleableCommand command) {
-        LOG.debug("Command: 'MarkProductAsSaleableCommand' received.");
-        if (!this.getSaleable()) {
-            apply(new ProductSaleableEvent(id));
-        } else {
-            throw new IllegalStateException("This ProductAggregate (" + this.getId() + ") is already Saleable.");
-        }
-    }
-
-    @CommandHandler
-    public void markUnsaleable(MarkProductAsUnsaleableCommand command) {
-        LOG.debug("Command: 'MarkProductAsUnsaleableCommand' received.");
-        if (this.getSaleable()) {
-            apply(new ProductUnsaleableEvent(id));
-        } else {
-            throw new IllegalStateException("This ProductAggregate (" + this.getId() + ") is already off-sale.");
-        }
+        apply(orderAddedEvent);
     }
 
     /**
@@ -140,32 +114,19 @@ public class Product {
      * @param event
      */
     @EventSourcingHandler
-    public void on(ProductAddedEvent event) {
+    public void on(OrderAddedEvent event) {
         this.id = event.getId();
         this.name = event.getName();
-        this.saleable = event.getSaleable();
-        Set<ProductImage> productImages = new HashSet<ProductImage>();
-        for (com.spaxon.commonthings.domain.ProductImage pi : event.getProductImages()) {
-        	ProductImage productImage = new ProductImage();
-        	productImage.setName(pi.getName());
-        	productImage.setUrl(pi.getUrl());
-        	productImage.setProduct(this);
-        	productImages.add(productImage);
+        Set<LineItem> lineItems = new HashSet<LineItem>();
+        for (com.spaxon.commonthings.domain.LineItem li : event.getLineItems()) {
+        	LineItem lineItem = new LineItem();
+        	lineItem.setName(li.getName());
+        	lineItem.setQuantity(li.getQuantity());
+        	lineItem.setUnitPrice(li.getUnitPrice());
+        	lineItems.add(lineItem);
         }
-        this.productImages = productImages;
-        LOG.debug("Applied: 'ProductAddedEvent' [{}] '{}'", event.getId(), event.getName());
-    }
-
-    @EventSourcingHandler
-    public void on(ProductSaleableEvent event) {
-        this.saleable = true;
-        LOG.debug("Applied: 'ProductSaleableEvent' [{}]", event.getId());
-    }
-
-    @EventSourcingHandler
-    public void on(ProductUnsaleableEvent event) {
-        this.saleable = false;
-        LOG.debug("Applied: 'ProductUnsaleableEvent' [{}]", event.getId());
+        this.lineItems = lineItems;
+        LOG.debug("Applied: 'OrderAddedEvent' [{}] '{}'", event.getId(), event.getName());
     }
 
     @Id
@@ -178,10 +139,6 @@ public class Product {
         return name;
     }
 
-    public boolean getSaleable() {
-        return saleable;
-    }
-    
     public void setId(String id) {
 		this.id = id;
 	}
@@ -190,29 +147,14 @@ public class Product {
 		this.name = name;
 	}
 
-	public void setSaleable(boolean saleable) {
-		this.saleable = saleable;
-	}    
-    
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)	
-	public Set<ProductImage> getProductImages() {
-		return productImages;
+    @OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "orderId")
+	public Set<LineItem> getLineItems() {
+		return lineItems;
 	}
 
-	public void setProductImages(Set<ProductImage> productImages) {
-		this.productImages = productImages;
+	public void setLineItems(Set<LineItem> lineItems) {
+		this.lineItems = lineItems;
 	}
-
-	/*
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "product_image", joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "image_id", referencedColumnName = "id"))	
-    public List<Category> getCategories() {
-		return categories;
-	}
-
-	public void setCategories(List<Category> categories) {
-		this.categories = categories;
-	}
-	*/
 
 }

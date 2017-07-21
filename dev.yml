@@ -69,5 +69,5 @@ services:
     entrypoint:
       - docker-entrypoint.sh
       - solr-precreate
-      - spaxon
+      - order
       
