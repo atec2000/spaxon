@@ -61,4 +61,17 @@ services:
       - "9001:9001"
       - "18000:18000"
     environment:
-     - SPRING_PROFILES_ACTIVE=production     
+     - SPRING_PROFILES_ACTIVE=production
+  spaxon-solr:
+    image: solr
+    container_name: spaxon-solr
+    ports:
+     - "8983:8983"
+    volumes:
+     - ./solr-docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d   
+#      - data:/opt/solr/server/solr/mycores
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr-precreate
+      - order
+          
