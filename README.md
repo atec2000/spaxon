@@ -38,9 +38,7 @@ $ docker-compose -f wip.yml rm -v
 
 ##Step 3: Integration Test (Manual)
 ```bash
-$ curl -X POST -v --header "Content-Type: application/json" --header "Accept: */*" "http://localhost:18080/commands/products/add/1?name=Everything%20Is%20Awesome"
-$ curl -X POST -v --header "Content-Type: application/json" --header "Accept: */*" "http://localhost:18080/commands/products/add" -d '{"name":"product name 1","saleable":"true"}'
-$ curl -X POST -v --header "Content-Type: application/json" --header "Accept: */*" "http://localhost:18080/commands/products/add" -d '{"name":"product name 1","saleable":"true","productImages":[{"name":"name 1","url":"url 1"}]}'
+$ curl -X POST -v --header "Content-Type: application/json" --header "Accept: */*" "http://localhost:18080/commands/orders/add" -d '{"name":"order name 1", "lineItems":[{"name":"name 1","quantity":"3","unitPrice":"12.0"}]}'
 ```
 
 The response code should be `HTTP/1.1 201 Created`. This means that the MP3 product "Everything is Awesome" has been added to the command-side event-sourced repository successfully.
@@ -48,7 +46,7 @@ The response code should be `HTTP/1.1 201 Created`. This means that the MP3 prod
 Now lets check that we can view the product that we just added. To do this we use the query-side API and issue a simple 'GET' request.
 
 ```bash
-$ curl http://localhost:18080/queries/products/1
+$ curl http://localhost:18080/queries/orders/1
 ```
 
 ##Step 4: Mongo check (Manual)
