@@ -4,25 +4,74 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
+        jcenter()
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath('se.transmode.gradle:gradle-docker:1.2')
 	}
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
+group = 'spaxon'
 
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
+apply plugin: 'org.springframework.boot'
+apply plugin: 'docker'
 
 repositories {
 	mavenCentral()
+	maven { url "http://maven.restlet.org" }	
 }
 
+jar {
+    baseName = 'spaxon-query-side'
+    archiveName = 'spaxon-query-side.jar'
+}
+
+configurations{
+    compile.exclude module: "spring-boot-starter-tomcat"
+}
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile project(':spaxon-common-things')
+	compile("org.apache.solr:solr-solrj:6.6.0")
+	compile("org.apache.solr:solr-core:6.6.0")
+	compile("org.restlet.jee:org.restlet.ext.servlet:2.3.0")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.5")
+    compile("org.axonframework:axon-amqp:3.0.5")
+    compile("org.axonframework:axon-spring-boot-starter:3.0.5")
+    compile("org.axonframework:axon-spring-boot-autoconfigure:3.0.5")    
+    testCompile("org.axonframework:axon-test:3.0.5")
+    compile("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
+    compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+    compile("org.springframework.boot:spring-boot-starter-jetty:${springBootVersion}")
+    compile("org.springframework.boot:spring-boot-starter-amqp:${springBootVersion}")
+    compile("org.springframework.boot:spring-boot-starter-data-rest:${springBootVersion}")
+    compile("org.springframework.retry:spring-retry")
+    compile("org.springframework.boot:spring-boot-starter-aop:${springBootVersion}")
+    compile("org.springframework.cloud:spring-cloud-starter-eureka")
+    compile("org.springframework.cloud:spring-cloud-starter-config")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    compile("org.springframework.boot:spring-boot-devtools")   
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:Dalston.RELEASE"
+	}
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '3.4.1'
+}
+
+task image(type: Docker, dependsOn: build){
+	push = false
+	applicationName = jar.baseName
+	dockerfile = file('src/main/docker/Dockerfile')
+	doFirst{
+		copy {
+			from jar
+			into stageDir
+		}
+	}
 }

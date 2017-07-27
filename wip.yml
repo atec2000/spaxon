@@ -74,4 +74,16 @@ services:
       - docker-entrypoint.sh
       - solr-precreate
       - order
+  spaxon-query-side:
+    image: spaxon/spaxon-query-side:latest
+    container_name: spaxon-query-side
+    depends_on:
+     - spaxon-rabbitmq
+     - spaxon-discovery
+     - spaxon-config
+    ports:
+     - "9091"
+    environment:
+     - SPRING_PROFILES_ACTIVE=production
+
           
