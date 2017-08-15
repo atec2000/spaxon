@@ -1,19 +1,31 @@
 package com.spaxon.commandside.aggregates;
 
-import org.axonframework.commandhandling.annotation.CommandHandler;
-import org.axonframework.eventhandling.annotation.EventHandler;
-import org.axonframework.eventsourcing.annotation.AbstractAnnotatedAggregateRoot;
-import org.axonframework.eventsourcing.annotation.AggregateIdentifier;
-import org.axonframework.eventsourcing.annotation.EventSourcingHandler;
+import org.axonframework.commandhandling.CommandHandler;
+import org.axonframework.commandhandling.model.AggregateIdentifier;
+import org.axonframework.commandhandling.model.AggregateMember;
+import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.spring.stereotype.Aggregate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
-import com.spaxon.commandside.commands.AddProductCommand;
-import com.spaxon.commandside.commands.MarkProductAsSaleableCommand;
-import com.spaxon.commandside.commands.MarkProductAsUnsaleableCommand;
-import com.spaxon.commonthings.events.ProductAddedEvent;
-import com.spaxon.commonthings.events.ProductSaleableEvent;
-import com.spaxon.commonthings.events.ProductUnsaleableEvent;
+import com.spaxon.commandside.commands.AddOrderCommand;
+import com.spaxon.commandside.domain.LineItem;
+import com.spaxon.commonthings.events.OrderAddedEvent;
+import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * ProductAggregate is essentially a DDD AggregateRoot (from the DDD concept). In event-sourced
@@ -34,11 +46,11 @@ import com.spaxon.commonthings.events.ProductUnsaleableEvent;
  * Events to the Aggregate, and the handling of those events by the aggregate or any other
  * configured EventHandlers.
  */
-public class ProductAggregate extends AbstractAnnotatedAggregateRoot {
+@Aggregate(repository="orderRepository")
+@Entity
+public class UserOrder {
 
-	private static final long serialVersionUID = -3855575947842228309L;
-
-	private static final Logger LOG = LoggerFactory.getLogger(ProductAggregate.class);
+	private static final Logger LOG = LoggerFactory.getLogger(UserOrder.class);
 
     /**
      * Aggregates that are managed by Axon must have a unique identifier.
@@ -47,16 +59,23 @@ public class ProductAggregate extends AbstractAnnotatedAggregateRoot {
      */
     @AggregateIdentifier
     private String id;
-    private String name;
-    private boolean isSaleable = false;
+	private String name;
 
-    /**
+	/*
+    @AggregateMember
+	private List<Category> categories;
+    */
+
+    @AggregateMember
+    private Set<LineItem> lineItems;
+
+	/**
      * This default constructor is used by the Repository to construct
      * a prototype ProductAggregate. Events are then used to set properties
      * such as the ProductAggregate's Id in order to make the Aggregate reflect
      * it's true logical state.
      */
-    public ProductAggregate() {
+    public UserOrder() {
     }
 
     /**
@@ -70,30 +89,20 @@ public class ProductAggregate extends AbstractAnnotatedAggregateRoot {
      * @param command
      */
     @CommandHandler
-    public ProductAggregate(AddProductCommand command) {
+    public UserOrder(AddOrderCommand command) {
         LOG.debug("Command: 'AddProductCommand' received.");
         LOG.debug("Queuing up a new ProductAddedEvent for product '{}'", command.getId());
-        apply(new ProductAddedEvent(command.getId(), command.getName()));
-    }
+        
+        //command.getProduct().getId();
+        OrderAddedEvent orderAddedEvent = new OrderAddedEvent(
+        		command.getId(), 
+        		command.getName(), 
+        		command.getLineItems());
+		//BeanUtils.copyProperties(command, productAddedEvent);		
+        LOG.debug("productAddedEvent.getId(): {}", orderAddedEvent.getId());
+        LOG.debug("..");
 
-    @CommandHandler
-    public void markSaleable(MarkProductAsSaleableCommand command) {
-        LOG.debug("Command: 'MarkProductAsSaleableCommand' received.");
-        if (!this.isSaleable()) {
-            apply(new ProductSaleableEvent(id));
-        } else {
-            throw new IllegalStateException("This ProductAggregate (" + this.getId() + ") is already Saleable.");
-        }
-    }
-
-    @CommandHandler
-    public void markUnsaleable(MarkProductAsUnsaleableCommand command) {
-        LOG.debug("Command: 'MarkProductAsUnsaleableCommand' received.");
-        if (this.isSaleable()) {
-            apply(new ProductUnsaleableEvent(id));
-        } else {
-            throw new IllegalStateException("This ProductAggregate (" + this.getId() + ") is already off-sale.");
-        }
+        apply(orderAddedEvent);
     }
 
     /**
@@ -105,36 +114,47 @@ public class ProductAggregate extends AbstractAnnotatedAggregateRoot {
      * @param event
      */
     @EventSourcingHandler
-    //@EventHandler
-    public void on(ProductAddedEvent event) {
+    public void on(OrderAddedEvent event) {
         this.id = event.getId();
         this.name = event.getName();
-        LOG.debug("Applied: 'ProductAddedEvent' [{}] '{}'", event.getId(), event.getName());
+        Set<LineItem> lineItems = new HashSet<LineItem>();
+        for (com.spaxon.commonthings.domain.LineItem li : event.getLineItems()) {
+        	LineItem lineItem = new LineItem();
+        	lineItem.setName(li.getName());
+        	lineItem.setQuantity(li.getQuantity());
+        	lineItem.setUnitPrice(li.getUnitPrice());
+        	lineItems.add(lineItem);
+        }
+        this.lineItems = lineItems;
+        LOG.debug("Applied: 'OrderAddedEvent' [{}] '{}'", event.getId(), event.getName());
     }
 
-    @EventSourcingHandler
-    //@EventHandler
-    public void on(ProductSaleableEvent event) {
-        this.isSaleable = true;
-        LOG.debug("Applied: 'ProductSaleableEvent' [{}]", event.getId());
-    }
-
-    @EventSourcingHandler
-    //@EventHandler
-    public void on(ProductUnsaleableEvent event) {
-        this.isSaleable = false;
-        LOG.debug("Applied: 'ProductUnsaleableEvent' [{}]", event.getId());
-    }
-
+    @Id
     public String getId() {
         return id;
     }
 
+    @Column
     public String getName() {
         return name;
     }
 
-    public boolean isSaleable() {
-        return isSaleable;
-    }
+    public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+    @OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "orderId")
+	public Set<LineItem> getLineItems() {
+		return lineItems;
+	}
+
+	public void setLineItems(Set<LineItem> lineItems) {
+		this.lineItems = lineItems;
+	}
+
 }

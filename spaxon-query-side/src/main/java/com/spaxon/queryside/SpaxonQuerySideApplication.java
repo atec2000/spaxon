@@ -1,4 +1,4 @@
-package com.spaxon.commandside;
+package com.spaxon.queryside;
 
 import java.util.List;
 
@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -14,11 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @EnableEurekaClient
-@SpringBootApplication
-public class SpaxonCommandSideApplication {
+@SpringBootApplication(exclude={DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
+public class SpaxonQuerySideApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpaxonCommandSideApplication.class, args);
+		SpringApplication.run(SpaxonQuerySideApplication.class, args);
 	}
 }
 
@@ -36,7 +38,6 @@ class ServiceInstanceRestController {
         return this.discoveryClient.getInstances(appName);
     }
 }
-
 
 @RefreshScope
 @RestController

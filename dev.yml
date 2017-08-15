@@ -28,8 +28,8 @@ services:
     container_name: spaxon-config
     ports:
      - "8888:8888"
-    environment:
-     - SPRING_PROFILES_ACTIVE=production
+    volumes:
+     - ..:/Users/jzhou/stswork     
 #    depends_on:
 #     - spaxon-mongodb
 #     - spaxon-rabbitmq
@@ -43,8 +43,6 @@ services:
     container_name: spaxon-gateway
     ports:
      - "18080:18080"
-    environment:
-     - SPRING_PROFILES_ACTIVE=production
     depends_on:
      - spaxon-discovery
      - spaxon-config
@@ -60,8 +58,6 @@ services:
       - "9000:9000"
       - "9001:9001"
       - "18000:18000"
-    environment:
-     - SPRING_PROFILES_ACTIVE=production
   spaxon-solr:
     image: solr
     container_name: spaxon-solr
@@ -83,7 +79,5 @@ services:
      - spaxon-config
     ports:
      - "9091"
-    environment:
-     - SPRING_PROFILES_ACTIVE=production
 
-          
+      

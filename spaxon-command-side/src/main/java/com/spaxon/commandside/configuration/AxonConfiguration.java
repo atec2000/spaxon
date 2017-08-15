@@ -1,51 +1,41 @@
 package com.spaxon.commandside.configuration;
 
-import com.mongodb.Mongo;
-import com.spaxon.commandside.aggregates.ProductAggregate;
-
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.SimpleCommandBus;
-import org.axonframework.commandhandling.annotation.AggregateAnnotationCommandHandler;
-import org.axonframework.commandhandling.annotation.AnnotationCommandHandlerBeanPostProcessor;
-import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.axonframework.commandhandling.gateway.CommandGatewayFactoryBean;
-import org.axonframework.contextsupport.spring.AnnotationDriven;
-import org.axonframework.eventhandling.*;
-import org.axonframework.eventhandling.amqp.spring.ListenerContainerLifecycleManager;
-import org.axonframework.eventhandling.amqp.spring.SpringAMQPConsumerConfiguration;
-import org.axonframework.eventhandling.amqp.spring.SpringAMQPTerminal;
-import org.axonframework.eventhandling.annotation.AnnotationEventListenerBeanPostProcessor;
-import org.axonframework.eventsourcing.EventSourcingRepository;
-import org.axonframework.eventstore.EventStore;
-import org.axonframework.eventstore.mongo.DefaultMongoTemplate;
-import org.axonframework.eventstore.mongo.MongoEventStore;
-import org.axonframework.eventstore.mongo.MongoTemplate;
-import org.axonframework.serializer.json.JacksonSerializer;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.transaction.RabbitTransactionManager;
+import org.axonframework.commandhandling.model.GenericJpaRepository;
+import org.axonframework.commandhandling.model.Repository;
+import org.axonframework.common.jpa.ContainerManagedEntityManagerProvider;
+import org.axonframework.common.jpa.EntityManagerProvider;
+import org.axonframework.common.transaction.TransactionManager;
+import org.axonframework.eventhandling.EventBus;
+import org.axonframework.eventhandling.SimpleEventBus;
+import org.axonframework.messaging.interceptors.BeanValidationInterceptor;
+import org.axonframework.messaging.interceptors.TransactionManagingInterceptor;
+import org.axonframework.monitoring.NoOpMessageMonitor;
+import org.axonframework.spring.messaging.unitofwork.SpringTransactionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
+
+import com.spaxon.commandside.aggregates.UserOrder;
 
 /**
- * Created by ben on 23/02/16.
+ * A configuration for axonframework.
+ * Axonframework is used to support eventsourcing and CQRS.
+ * 
+ * @author idugalic
+ *
  */
 @Configuration
-@AnnotationDriven
 public class AxonConfiguration {
-
-    private static final String AMQP_CONFIG_KEY = "AMQP.Config";
-
-    @Autowired
-    public Mongo mongo;
-
-    @Autowired
-    public ConnectionFactory connectionFactory;
-
-    @Autowired
-    public RabbitTransactionManager transactionManager;
-
+	
+    /*
+    @Value("${spring.data.mongodb.host}")
+    private String mongoHost;
+    
     @Value("${spring.application.queue}")
     private String queueName;
 
@@ -60,129 +50,44 @@ public class AxonConfiguration {
 
     @Value("${spring.application.snapshotCollectionName}")
     private String snapshotCollectionName;
-
-/*    @Bean
-    XStreamSerializer xmlSerializer() {
-        return new XStreamSerializer();
-    }*/
-
+    */
+    
+	@SuppressWarnings("unused")
+	private static final Logger logger = LoggerFactory.getLogger(AxonConfiguration.class);
+	
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+    
     @Bean
-    JacksonSerializer axonJsonSerializer() {
-        return new JacksonSerializer();
+    public TransactionManager axonTransactionManager() {
+        return new SpringTransactionManager(transactionManager);
     }
-
+    
     @Bean
-    ListenerContainerLifecycleManager listenerContainerLifecycleManager() {
-        ListenerContainerLifecycleManager mgr = new ListenerContainerLifecycleManager();
-        mgr.setConnectionFactory(connectionFactory);
-        return mgr;
+    public EventBus eventBus(){
+        return new SimpleEventBus();
     }
-
+    
     @Bean
-    SpringAMQPConsumerConfiguration springAMQPConsumerConfiguration() {
-        SpringAMQPConsumerConfiguration cfg = new SpringAMQPConsumerConfiguration();
-        cfg.setTransactionManager(transactionManager);
-        cfg.setQueueName(queueName);
-        cfg.setTxSize(10);
-        return cfg;
-    }
-
-
-    @Bean
-    SimpleCluster simpleCluster() {
-        SimpleCluster cluster = new SimpleCluster(queueName);
-        cluster.getMetaData().setProperty(AMQP_CONFIG_KEY, springAMQPConsumerConfiguration());
-        return cluster;
-    }
-
-    @Bean
-    EventBusTerminal terminal() {
-        SpringAMQPTerminal terminal = new SpringAMQPTerminal();
-        terminal.setConnectionFactory(connectionFactory);
-        terminal.setExchangeName(exchangeName);
-        terminal.setDurable(true);
-        terminal.setTransactional(true);
-        terminal.setSerializer(axonJsonSerializer());
-        //terminal.setSerializer(xmlSerializer());
-        terminal.setListenerContainerLifecycleManager(listenerContainerLifecycleManager());
-        return terminal;
-    }
-
-    @Bean
-    EventBus eventBus() {
-        return new ClusteringEventBus(new DefaultClusterSelector(simpleCluster()), terminal());
-    }
-
-    @Bean(name = "axonMongoTemplate")
-    MongoTemplate axonMongoTemplate() {
-        MongoTemplate template = new DefaultMongoTemplate(mongo,
-                databaseName, eventsCollectionName, snapshotCollectionName, null, null);
-        return template;
-    }
-
-    @Bean
-    EventStore eventStore() {
-        //MongoEventStore eventStore = new MongoEventStore(xmlSerializer(), axonMongoTemplate());
-        MongoEventStore eventStore = new MongoEventStore(axonJsonSerializer(), axonMongoTemplate());
-        return eventStore;
-    }
-
-    @Bean
-    EventSourcingRepository<ProductAggregate> productEventSourcingRepository() {
-        EventSourcingRepository<ProductAggregate> repo = new EventSourcingRepository<ProductAggregate>(ProductAggregate.class, eventStore());
-        repo.setEventBus(eventBus());
-        return repo;
-    }
-
-    @Bean
-    CommandBus commandBus() {
-        SimpleCommandBus commandBus = new SimpleCommandBus();
+    CommandBus commandBus(TransactionManager transactionManager) {
+        SimpleCommandBus commandBus = new SimpleCommandBus(transactionManager, NoOpMessageMonitor.INSTANCE);
+        commandBus.registerDispatchInterceptor(new BeanValidationInterceptor());
         return commandBus;
     }
-
+    
     @Bean
-    CommandGatewayFactoryBean<CommandGateway> commandGatewayFactoryBean() {
-        CommandGatewayFactoryBean<CommandGateway> factory = new CommandGatewayFactoryBean<CommandGateway>();
-        factory.setCommandBus(commandBus());
-        return factory;
+    public TransactionManagingInterceptor transactionManagingInterceptor(){
+        return new TransactionManagingInterceptor(new SpringTransactionManager(transactionManager));
     }
-
-    /**
-     * This method allows Axon to automatically find your @EventHandler's
-     *
-     * @return
-     */
+    
     @Bean
-    AnnotationEventListenerBeanPostProcessor eventListenerBeanPostProcessor() {
-        AnnotationEventListenerBeanPostProcessor proc = new AnnotationEventListenerBeanPostProcessor();
-        proc.setEventBus(eventBus());
-        return proc;
-    }
-
-    /**
-     * This method allows Axon to automatically find your @CommandHandler's
-     *
-     * @return
-     */
-    @Bean
-    AnnotationCommandHandlerBeanPostProcessor commandHandlerBeanPostProcessor() {
-        AnnotationCommandHandlerBeanPostProcessor proc = new AnnotationCommandHandlerBeanPostProcessor();
-        proc.setCommandBus(commandBus());
-        return proc;
-    }
-
-    /**
-     * This method registers your Aggregate Root as a @CommandHandler
-     *
-     * @return
-     */
-    @Bean
-    AggregateAnnotationCommandHandler<ProductAggregate> productAggregateCommandHandler() {
-        AggregateAnnotationCommandHandler<ProductAggregate> handler = new AggregateAnnotationCommandHandler<ProductAggregate>(
-                ProductAggregate.class,
-                productEventSourcingRepository(),
-                commandBus());
-        return handler;
-    }
-
+	public EntityManagerProvider entityManagerProvider() {
+		return new ContainerManagedEntityManagerProvider();
+	}    
+    
+	@Bean
+    public Repository<UserOrder> orderRepository() {
+        return new GenericJpaRepository<UserOrder>(entityManagerProvider(), UserOrder.class, eventBus());
+    }    
+    
 }

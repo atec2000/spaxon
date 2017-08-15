@@ -1,1 +1,1 @@
-include "spaxon-common-things", "spaxon-config-service", "spaxon-discovery-service", "spaxon-gateway-service", "spaxon-command-side"
+include "spaxon-common-things", "spaxon-config-service", "spaxon-discovery-service", "spaxon-gateway-service", "spaxon-command-side", "spaxon-query-side"
