@@ -3,7 +3,6 @@ package com.spaxon.queryside.configuration;
 import org.axonframework.amqp.eventhandling.DefaultAMQPMessageConverter;
 import org.axonframework.amqp.eventhandling.spring.SpringAMQPMessageSource;
 import org.axonframework.serialization.Serializer;
-
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.FanoutExchange;
@@ -74,7 +73,7 @@ public class RabbitConfiguration {
             @RabbitListener(queues = "${spring.application.queue}")
             @Override
             public void onMessage(Message message, Channel channel) throws Exception {
-                super.onMessage(message, channel);
+                super.onMessage(message, channel); 
             }
         };
     }
